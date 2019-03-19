@@ -1,0 +1,29 @@
+app:
+  name : BookService
+  log.tomcat-version : true
+
+logging.level.org.repl.springcloud: ${BOOK_SERVICE_LOGGING_LEVEL:DEBUG}
+
+server:
+  port: ${port:9090}
+  compression:
+    enabled: false
+    mime-types: application/json, text/html
+    min-response-size: 2048
+
+spring:
+  application:
+    name: book-service
+  jackson:
+    serialization:
+      indent_output: false
+      write_dates_as_timestamps: false
+      write_durations_as_timestamps: false
+  data:
+    mongodb:
+      authentication-database: admin
+      username: root
+      password: qwerty123
+      database: lms_db
+      port: 27017
+      host: localhost
