@@ -1,10 +1,11 @@
 package org.repl.poc.lmsdata.controller
 
 import org.apache.commons.lang3.StringUtils
-import org.repl.poc.lmsdata.dto.{BookDto, ListViewRequestDto, PaginatedListDto, ServiceResponse}
+import org.repl.poc.lmsdata.dto._
 import org.repl.poc.lmsdata.exception.ServiceException
 import org.repl.poc.lmsdata.service.BookService
 import org.springframework.beans.factory.annotation.Autowired
+import org.springframework.http.MediaType
 import org.springframework.web.bind.annotation._
 
 @RestController
@@ -53,5 +54,11 @@ class BookController @Autowired()(bookService: BookService) {
       }
     }
     return bookService.getCollection(requestDto)
+  }
+
+  @PostMapping(value = Array("/v1/books"), consumes = Array(MediaType.APPLICATION_JSON_VALUE), produces = Array(MediaType.APPLICATION_JSON_VALUE))
+  @ResponseBody
+  def createUsers(@RequestBody input: BookDto): ServiceResponse[IdDto] = {
+    return bookService.create(input)
   }
 }

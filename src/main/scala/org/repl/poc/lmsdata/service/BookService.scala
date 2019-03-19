@@ -1,7 +1,11 @@
 package org.repl.poc.lmsdata.service
 
-import org.repl.poc.lmsdata.dto.{BookDto, ListViewRequestDto, PaginatedListDto, ServiceResponse}
-import org.repl.poc.lmsdata.model.BookMdl
+import java.time.LocalDateTime
+import java.util.UUID
+
+import org.repl.poc.lmsdata.dto._
+import org.repl.poc.lmsdata.mongodb.model.BookMdl
+import org.repl.poc.lmsdata.mongodb.repository.BookRepository
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.data.mongodb.core.MongoTemplate
 import org.springframework.stereotype.Service
@@ -10,9 +14,10 @@ import org.springframework.data.mongodb.core.aggregation.AggregationResults
 import org.springframework.data.mongodb.core.query.Criteria
 
 import scala.collection.JavaConverters._
+import scala.collection.mutable
 
 @Service
-class BookService @Autowired() ( mongoTemplate: MongoTemplate) {
+class BookService @Autowired() (mongoTemplate: MongoTemplate, bookRepository: BookRepository) {
   def getCollection(requestDto: ListViewRequestDto): ServiceResponse[PaginatedListDto[BookDto]] = {
     val response = new ServiceResponse[PaginatedListDto[BookDto]]()
     if (requestDto.pageSize == 0) {
@@ -43,5 +48,33 @@ class BookService @Autowired() ( mongoTemplate: MongoTemplate) {
     response.data = Some(paginatedDto)
     response.success = true
     return response
+  }
+
+  def create(input: BookDto): ServiceResponse[IdDto] = {
+    val response = new ServiceResponse[IdDto]()
+    val errors = validateCreateInput(input)
+    if (errors.nonEmpty) {
+      errors.foreach(error => response.errors += error)
+      response.success = false
+      return response
+    }
+    input.id = UUID.randomUUID().toString()
+    input.createdDate = LocalDateTime.now()
+    input.modifiedDate = LocalDateTime.now()
+    val model = new BookMdl()
+    model.populate(input)
+    val persistedModel = bookRepository.save(model)
+    val persistedDto = persistedModel.createDto()
+    response.success = true
+    response.data = Some(IdDto(persistedDto.id))
+    return response
+  }
+
+  def validateCreateInput(input: BookDto): Seq[ServiceResponseError] = {
+    val errors: mutable.MutableList[ServiceResponseError] = mutable.MutableList[ServiceResponseError]()
+    if (input.name.isEmpty) {
+      errors += ServiceResponseError("BOOK001", "name attribute is missing.")
+    }
+    return errors
   }
 }

@@ -1,4 +1,4 @@
-package org.repl.poc.lmsdata.model
+package org.repl.poc.lmsdata.mongodb.model
 
 import java.time.LocalDateTime
 
@@ -7,7 +7,7 @@ import org.springframework.data.annotation.Id
 import org.springframework.data.mongodb.core.index.Indexed
 import org.springframework.data.mongodb.core.mapping.Document
 
-@Document(collection = "User")
+@Document(collection = "Book")
 class BookMdl {
   @Id
   var id: String = _
@@ -28,5 +28,14 @@ class BookMdl {
     retDto.modifiedDate = modifiedDate
     retDto.modifiedByUID = modifiedByUID
     return retDto
+  }
+
+  def populate(input: BookDto) = {
+    this.id = input.id
+    this.name = input.name
+    this.createdDate = input.createdDate
+    this.createdByUID = input.createdByUID
+    this.modifiedDate = input.modifiedDate
+    this.modifiedByUID = input.modifiedByUID
   }
 }
