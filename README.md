@@ -8,5 +8,5 @@ curl -i -X POST 'http://localhost:9090/api/v1/books' \
    -H "Content-Type:application/json" \
    -d \
 '{
-  "name": "First Book"
+  "title": "First Book"
 }'

@@ -72,8 +72,8 @@ class BookService @Autowired() (mongoTemplate: MongoTemplate, bookRepository: Bo
 
   def validateCreateInput(input: BookDto): Seq[ServiceResponseError] = {
     val errors: mutable.MutableList[ServiceResponseError] = mutable.MutableList[ServiceResponseError]()
-    if (input.name.isEmpty) {
-      errors += ServiceResponseError("BOOK001", "name attribute is missing.")
+    if (input.title.isEmpty) {
+      errors += ServiceResponseError("BOOK001", "title attribute is missing.")
     }
     return errors
   }
