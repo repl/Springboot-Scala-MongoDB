@@ -33,3 +33,12 @@ curl -i -X POST 'http://localhost:9090/api/v1/books' \
   "title": "First Book"
 }'
 ```
+
+### How to run the service
+For development, use the following options:
+1. IDE run configuration for gradle. Set gradle task as 'bootRun'. 
+2. Command line: gradlew bootRun
+3. Command line: gradlew compile; java -jar build/libs/springbootscalamongo-0.0.1-SNAPSHOT.jar
+
+
+ 
