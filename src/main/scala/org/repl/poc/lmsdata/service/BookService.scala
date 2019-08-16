@@ -1,8 +1,8 @@
 package org.repl.poc.lmsdata.service
 
 import java.time.LocalDateTime
-import java.util.UUID
 
+import org.bson.types.ObjectId
 import org.repl.poc.lmsdata.dto._
 import org.repl.poc.lmsdata.mongodb.model.{BookCopyMdl, BookMdl}
 import org.repl.poc.lmsdata.mongodb.repository.{BookCopyRepository, BookRepository, LibraryBranchRepository}
@@ -140,9 +140,9 @@ class BookService @Autowired() (mongoTemplate: MongoTemplate,
     val response = new ServiceResponse[List[LibraryBranchDto]]()
     bookRepository.findById(bookId) match {
       case Some(mdl) => {
-        val copies = bookCopyRepository.findByBook(mdl)
+        val copies = bookCopyRepository.findByBookId(new ObjectId(mdl.id))
         if (copies != null) {
-          response.data = Some(copies.map( x => x.branch.createDto()))
+          response.data = Some(copies.asScala.map( x => x.branch.createDto()).toList)
         }
       }
       case None => {
