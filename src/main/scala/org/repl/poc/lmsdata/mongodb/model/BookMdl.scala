@@ -6,19 +6,28 @@ import org.repl.poc.lmsdata.dto.BookDto
 import org.springframework.data.annotation.Id
 import org.springframework.data.mongodb.core.index.Indexed
 import org.springframework.data.mongodb.core.mapping.Document
+import org.springframework.data.mongodb.core.mapping.Field
 
 @Document(collection = "Book")
 class BookMdl {
   @Id
   var id: String = _
   @Indexed(sparse = true)
+  @Field("Book-Title")
   var title: String = _
+  @Field("ISBN")
   var isbn: String = _
+  @Field("Book-Author")
   var author: String = _
+  @Field("Year-Of-Publication")
   var yearOfPublication: String = _
+  @Field("Publisher")
   var publisher: String = _
+  @Field("Image-URL-S")
   var imageUrlSizeS: String = _
+  @Field("Image-URL-M")
   var imageUrlSizeM: String = _
+  @Field("Image-URL-L")
   var imageUrlSizeL: String = _
 
   var createdDate: LocalDateTime = _

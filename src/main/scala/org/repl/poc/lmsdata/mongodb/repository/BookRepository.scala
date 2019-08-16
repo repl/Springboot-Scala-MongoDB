@@ -5,4 +5,5 @@ import org.springframework.data.repository.Repository
 
 trait BookRepository extends Repository[BookMdl, String] {
   def save(model: BookMdl): BookMdl
+  def findById(id: String): Option[BookMdl]
 }

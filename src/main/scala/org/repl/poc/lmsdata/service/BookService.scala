@@ -4,8 +4,8 @@ import java.time.LocalDateTime
 import java.util.UUID
 
 import org.repl.poc.lmsdata.dto._
-import org.repl.poc.lmsdata.mongodb.model.BookMdl
-import org.repl.poc.lmsdata.mongodb.repository.BookRepository
+import org.repl.poc.lmsdata.mongodb.model.{BookCopyMdl, BookMdl}
+import org.repl.poc.lmsdata.mongodb.repository.{BookCopyRepository, BookRepository, LibraryBranchRepository}
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.data.mongodb.core.MongoTemplate
 import org.springframework.stereotype.Service
@@ -17,7 +17,11 @@ import scala.collection.JavaConverters._
 import scala.collection.mutable
 
 @Service
-class BookService @Autowired() (mongoTemplate: MongoTemplate, bookRepository: BookRepository) {
+class BookService @Autowired() (mongoTemplate: MongoTemplate,
+                                bookRepository: BookRepository,
+                                libraryBranchRepository: LibraryBranchRepository,
+                                bookCopyRepository: BookCopyRepository) {
+
   def getCollection(requestDto: ListViewRequestDto): ServiceResponse[PaginatedListDto[BookDto]] = {
     val response = new ServiceResponse[PaginatedListDto[BookDto]]()
     if (requestDto.pageSize == 0) {
@@ -29,7 +33,15 @@ class BookService @Autowired() (mongoTemplate: MongoTemplate, bookRepository: Bo
     val filterCriteria = new Criteria()
     if (requestDto.filters.nonEmpty) {
       requestDto.filters.foreach( entry => {
-        filterCriteria.and(entry._1).`is`(requestDto.filters.get(entry._2.toString))
+        if (entry._1.toString().equalsIgnoreCase("title")) {
+          filterCriteria.and("Book-Title").`regex`(entry._2.toString())
+        } else if (entry._1.toString().equalsIgnoreCase("author")) {
+          filterCriteria.and("Book-Author").`regex`(entry._2.toString())
+        } else if (entry._1.toString().equalsIgnoreCase("isbn")) {
+          filterCriteria.and("ISBN").`regex`(entry._2.toString())
+        } else {
+          throw new RuntimeException("Invalid searchKey");
+        }
       }
       )
     }
@@ -58,7 +70,6 @@ class BookService @Autowired() (mongoTemplate: MongoTemplate, bookRepository: Bo
       response.success = false
       return response
     }
-    input.id = UUID.randomUUID().toString()
     input.createdDate = LocalDateTime.now()
     input.modifiedDate = LocalDateTime.now()
     val model = new BookMdl()
@@ -67,7 +78,7 @@ class BookService @Autowired() (mongoTemplate: MongoTemplate, bookRepository: Bo
     val persistedDto = persistedModel.createDto()
     response.success = true
     response.data = Some(IdDto(persistedDto.id))
-    return response
+    response
   }
 
   def validateCreateInput(input: BookDto): Seq[ServiceResponseError] = {
@@ -75,6 +86,70 @@ class BookService @Autowired() (mongoTemplate: MongoTemplate, bookRepository: Bo
     if (input.title.isEmpty) {
       errors += ServiceResponseError("BOOK001", "title attribute is missing.")
     }
-    return errors
+    errors
+  }
+
+  def get(id: String): ServiceResponse[BookDto] = {
+    val response = new ServiceResponse[BookDto]()
+    bookRepository.findById(id) match {
+      case Some(mdl) => {
+        response.success = true
+        response.data = Option(mdl.createDto())
+      }
+      case None => {
+        response.success = false
+        response.errors.+("No book found!")
+      }
+    }
+    return response
+  }
+
+  def createCopy(input: BookCopyCreateDto): ServiceResponse[IdDto] = {
+    val response = new ServiceResponse[IdDto]()
+    var bookCopyDto = new BookCopyDto()
+    bookRepository.findById(input.bookId) match {
+      case Some(mdl) => {
+        bookCopyDto.book = mdl.createDto()
+      }
+      case None => {
+        response.success = false
+        response.errors.+("No book found!")
+      }
+    }
+    libraryBranchRepository.findById(input.branchId) match {
+      case Some(mdl) => {
+        bookCopyDto.branch = mdl.createDto()
+      }
+      case None => {
+        response.success = false
+        response.errors.+("No branch found!")
+      }
+    }
+    if (response.errors.size == 0) {
+      val bookCopyMdl = new BookCopyMdl()
+      bookCopyMdl.populate(bookCopyDto)
+      val persistedModel = bookCopyRepository.save(bookCopyMdl)
+      val persistedDto = persistedModel.createDto()
+      response.success = true
+      response.data = Some(IdDto(persistedDto.id))
+    }
+    response
+  }
+
+  def getBranchesWithBook(bookId: String): ServiceResponse[List[LibraryBranchDto]] = {
+    val response = new ServiceResponse[List[LibraryBranchDto]]()
+    bookRepository.findById(bookId) match {
+      case Some(mdl) => {
+        val copies = bookCopyRepository.findByBook(mdl)
+        if (copies != null) {
+          response.data = Some(copies.map( x => x.branch.createDto()))
+        }
+      }
+      case None => {
+        response.success = false
+        response.errors.+("No book found!")
+      }
+    }
+    response
   }
 }

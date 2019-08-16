@@ -32,3 +32,5 @@ HELP.md
 .ensime
 ensime-langserver.log
 .ensime_cache
+
+target/

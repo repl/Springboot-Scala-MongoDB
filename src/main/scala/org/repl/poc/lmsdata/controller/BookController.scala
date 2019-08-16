@@ -18,19 +18,12 @@ class BookController @Autowired()(bookService: BookService) {
                @RequestParam(value = "pageNum", required = false) pageNum : String,
                @RequestParam(value = "sortKey", required = false) sortKey : String,
                @RequestParam(value = "sortOrder", required = false, defaultValue = "asc") sortOrder : String,
-               @RequestParam(value = "rangeKey", required = false) filterRangeKey : String,
-               @RequestParam(value = "rangeOp", required = false) filterRangeOp : String,
-               @RequestParam(value = "rangeValue", required = false) filterRangeValue : String): ServiceResponse[PaginatedListDto[BookDto]] = {
+               @RequestParam(value = "searchKey", required = false) searchKey : String,
+               @RequestParam(value = "searchValue", required = false) searchValue : String): ServiceResponse[PaginatedListDto[BookDto]] = {
     val requestDto = new ListViewRequestDto()
     val filtersMap = requestDto.filters
-    if (!StringUtils.isEmpty(filterRangeKey)) {
-      filtersMap.put("rangeKey", filterRangeKey.toString());
-    }
-    if (!StringUtils.isEmpty(filterRangeOp)) {
-      filtersMap.put("rangeOp", filterRangeOp.toString())
-    }
-    if (!StringUtils.isEmpty(filterRangeValue)) {
-      filtersMap.put("rangeValue", filterRangeValue.toString())
+    if (!StringUtils.isEmpty(searchKey) && !StringUtils.isEmpty(searchValue)) {
+      filtersMap.put(searchKey, searchValue);
     }
     if (!StringUtils.isEmpty(pageSize)) {
       try {
@@ -58,7 +51,23 @@ class BookController @Autowired()(bookService: BookService) {
 
   @PostMapping(value = Array("/v1/books"), consumes = Array(MediaType.APPLICATION_JSON_VALUE), produces = Array(MediaType.APPLICATION_JSON_VALUE))
   @ResponseBody
-  def createUsers(@RequestBody input: BookDto): ServiceResponse[IdDto] = {
+  def createBook(@RequestBody input: BookDto): ServiceResponse[IdDto] = {
     return bookService.create(input)
+  }
+
+  @GetMapping(value = Array("/v1/books/{id}"))
+  def getBook(@PathVariable("id") id: String): ServiceResponse[BookDto] = {
+    return bookService.get(id);
+  }
+
+  @PostMapping(value = Array("/v1/books/copy"), consumes = Array(MediaType.APPLICATION_JSON_VALUE), produces = Array(MediaType.APPLICATION_JSON_VALUE))
+  @ResponseBody
+  def createBook(@RequestBody input: BookCopyCreateDto): ServiceResponse[IdDto] = {
+    return bookService.createCopy(input)
+  }
+
+  @GetMapping(value = Array("/v1/books/{id}/branches"))
+  def getBranchesWithBook(@PathVariable("id") bookId: String): ServiceResponse[List[LibraryBranchDto]] = {
+    return bookService.getBranchesWithBook(bookId)
   }
 }
