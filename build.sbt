@@ -4,7 +4,7 @@ version := "0.0.1-SNAPSHOT"
 import Dependencies._
 import sbt.Keys.libraryDependencies
 
-lazy val springVersion = "2.1.3.RELEASE"
+lazy val springVersion = "2.1.4.RELEASE"
 
 lazy val root = (project in file(".")).
   settings(
@@ -17,6 +17,9 @@ lazy val root = (project in file(".")).
     libraryDependencies += scalaTest % Test,
     libraryDependencies += "org.springframework.boot" % "spring-boot-starter-web" % springVersion,
     libraryDependencies += "org.springframework.boot" % "spring-boot-starter-actuator" % springVersion,
+    libraryDependencies += "org.springframework.boot" % "spring-boot-starter-security" % springVersion,
+    libraryDependencies += "org.springframework.security.oauth" % "spring-security-oauth2" % "2.3.5.RELEASE",
+    libraryDependencies += "org.springframework.security" % "spring-security-jwt" % "1.0.9.RELEASE",
 
     libraryDependencies += "org.springframework.boot" % "spring-boot-starter-data-mongodb" % springVersion,
     libraryDependencies += "com.h2database" % "h2" % "1.4.195",
@@ -28,7 +31,9 @@ lazy val root = (project in file(".")).
     libraryDependencies += "com.fasterxml.jackson.datatype" % "jackson-datatype-jsr310" % "2.9.8",
     libraryDependencies += "com.fasterxml.jackson.module" % "jackson-module-scala_2.12" % "2.9.8",
     libraryDependencies += "org.apache.commons" % "commons-lang3" % "3.3.2",
-    
+    libraryDependencies += "javax.xml.bind" % "jaxb-api" % "2.3.1",
+    libraryDependencies += "org.glassfish.jaxb" % "jaxb-runtime" % "2.3.1",
+
     libraryDependencies += "org.springframework.boot" % "spring-boot-starter-test" % springVersion
   )
 

@@ -1,7 +1,6 @@
 package org.repl.poc.lmsdata.service
 
 import java.time.LocalDateTime
-import java.util.UUID
 
 import org.repl.poc.lmsdata.dto.{IdDto, LibraryBranchDto, ServiceResponse, ServiceResponseError}
 import org.repl.poc.lmsdata.mongodb.model.LibraryBranchMdl
