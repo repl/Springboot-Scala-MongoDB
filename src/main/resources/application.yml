@@ -2,7 +2,7 @@ app:
   name : BookService
   log.tomcat-version : true
 
-logging.level.org.repl.springcloud: ${BOOK_SERVICE_LOGGING_LEVEL:DEBUG}
+logging.level.org.repl.poc.lmsdata: ${LMS_LOGGING_LEVEL:DEBUG}
 
 server:
   port: ${port:9090}

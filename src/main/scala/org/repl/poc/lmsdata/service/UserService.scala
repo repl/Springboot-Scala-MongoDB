@@ -2,11 +2,10 @@ package org.repl.poc.lmsdata.service
 
 import java.time.LocalDateTime
 
-import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.stereotype.Service
 import java.util
 
-import org.repl.poc.lmsdata.dto.{IdDto, LibraryBranchDto, ServiceResponse, ServiceResponseError, UserCreateDto, UserDto}
+import org.repl.poc.lmsdata.dto.{IdDto, ServiceResponse, ServiceResponseError, UserCreateDto, UserDto}
 import org.repl.poc.lmsdata.mongodb.model.UserMdl
 import org.repl.poc.lmsdata.mongodb.repository.UserRepository
 import org.springframework.beans.factory.annotation.Autowired
@@ -15,6 +14,7 @@ import org.springframework.security.core.userdetails.{UserDetailsService, Userna
 import org.springframework.security.crypto.password.PasswordEncoder
 
 import scala.collection.mutable
+import scala.compat.java8.OptionConverters._
 
 @Service(value = "userService")
 class UserService extends UserDetailsService {
@@ -67,5 +67,20 @@ class UserService extends UserDetailsService {
       errors += ServiceResponseError("USER002", "Another user exists with same name.")
     }
     errors
+  }
+
+  def getUser(id: String): ServiceResponse[UserDto] = {
+    val response = new ServiceResponse[UserDto]()
+    userRepository.findById(id).asScala match {
+      case Some(mdl) => {
+        response.success = true
+        response.data = Option(mdl.createDto())
+      }
+      case None => {
+        response.success = false
+        response.errors.+("No user found!")
+      }
+    }
+    return response
   }
 }

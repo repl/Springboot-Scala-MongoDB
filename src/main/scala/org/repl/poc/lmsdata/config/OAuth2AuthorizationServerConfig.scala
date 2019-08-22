@@ -23,8 +23,8 @@ class OAuth2AuthorizationServerConfig extends AuthorizationServerConfigurerAdapt
   @Autowired
   private var authenticationManager: AuthenticationManager = _
 
-  val CLIENT_ID: String = "defmacro-client";
-  val CLIENT_SECRET = "$2y$12$nv64IvDN1P2EnNARkeYOgOdHSM4b7G5y97KuXG5sdv03HAqU6TNuW"; //defmacro-secret
+  val CLIENT_ID: String = "devglan-client";
+  val CLIENT_SECRET = "$2a$04$e/c1/RfsWuThaWFCrcCuJeoyvwCV0URN/6Pn9ZFlrtIWaU/vj/BfG"; //devglan-secret
   val GRANT_TYPE_PASSWORD = "password";
   val AUTHORIZATION_CODE = "authorization_code";
   val REFRESH_TOKEN = "refresh_token";
@@ -41,7 +41,7 @@ class OAuth2AuthorizationServerConfig extends AuthorizationServerConfigurerAdapt
       .withClient(CLIENT_ID)
       .secret(CLIENT_SECRET)
       .authorizedGrantTypes(GRANT_TYPE_PASSWORD, AUTHORIZATION_CODE, REFRESH_TOKEN, IMPLICIT)
-      .scopes(SCOPE_READ, SCOPE_WRITE, TRUST)
+      .scopes(SCOPE_READ, SCOPE_WRITE)
       .accessTokenValiditySeconds(ACCESS_TOKEN_VALIDITY_SECONDS).
       refreshTokenValiditySeconds(REFRESH_TOKEN_VALIDITY_SECONDS)
   }

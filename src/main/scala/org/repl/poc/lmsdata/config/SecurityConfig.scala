@@ -22,6 +22,9 @@ import javax.annotation.Resource
 @EnableWebSecurity
 @EnableGlobalMethodSecurity(prePostEnabled = true)
 class SecurityConfig extends WebSecurityConfigurerAdapter {
+
+  val ADMIN_ROLE: Any = "ROLE_ADMIN"
+
   @Bean
   def accessTokenConverter(): AccessTokenConverter = {
     val jatc = new JwtAccessTokenConverter()
@@ -59,31 +62,28 @@ class SecurityConfig extends WebSecurityConfigurerAdapter {
 
   /*@Autowired
   def configureGlobal(auth: AuthenticationManagerBuilder): Unit = {
-    auth.inMemoryAuthentication().withUser("bugbug0102").password("0102").roles("USER", "ADMIN", "BUGBUG")
+    auth.userDetailsService(userDetailsService).passwordEncoder(encoder)
   }
 
   @throws[Exception]
   override protected def configure(auth: AuthenticationManagerBuilder): Unit = {
-    //@formatter:off
-    auth.inMemoryAuthentication.withUser("habuma")
-      .password("password")
-      .authorities("ROLE_USER", "ROLE_ADMIN")
-      .and
-      .withUser("izzy")
-      .password("password")
-      .authorities("ROLE_USER")
-    //@formatter:on
+    auth.userDetailsService(userDetailsService).passwordEncoder(encoder)
   }*/
 
   @throws[Exception]
   override protected def configure(http: HttpSecurity): Unit = {
-    http
-      .csrf.disable
-      .anonymous.disable
-      //.sessionManagement.sessionCreationPolicy(SessionCreationPolicy.STATELESS)
-      .authorizeRequests
-      .antMatchers(HttpMethod.GET, "/api/v1/movies", "/error").permitAll
-      .antMatchers(HttpMethod.POST, "/api/v1/login", "/api/v1/register", "/api/v1/tickets").permitAll
+    //@formatter:off
+    http.csrf().disable()
+      .authorizeRequests()
+      .antMatchers(HttpMethod.GET, "/echo").permitAll()
+      .antMatchers(HttpMethod.POST, "/oauth/token").permitAll()
+      .antMatchers(HttpMethod.GET, "/api/v1/books/**").permitAll()
+      .antMatchers(HttpMethod.POST, "/api/v1/users").permitAll()
+      .antMatchers("/api/v1/admin/**").access("hasRole('" + ADMIN_ROLE + "')")
+      //.anyRequest().authenticated().and().httpBasic()
+
+    //http.sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS)
+    //@formatter:on
   }
 
   /*@Bean def corsFilter: FilterRegistrationBean[CorsFilter] = {

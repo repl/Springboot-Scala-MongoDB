@@ -60,6 +60,11 @@ class BookController @Autowired()(bookService: BookService) {
     return bookService.get(id);
   }
 
+  @GetMapping(value = Array("/v1/books/{id}/user-ratings"))
+  def getBookRatings(@PathVariable("id") id: String): ServiceResponse[UserBookRatingSummaryDto] = {
+    return bookService.getRatings(id);
+  }
+
   @PostMapping(value = Array("/v1/books/copy"), consumes = Array(MediaType.APPLICATION_JSON_VALUE), produces = Array(MediaType.APPLICATION_JSON_VALUE))
   @ResponseBody
   def createBook(@RequestBody input: BookCopyCreateDto): ServiceResponse[IdDto] = {

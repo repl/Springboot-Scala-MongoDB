@@ -5,8 +5,9 @@ import java.time.LocalDateTime
 import org.bson.types.ObjectId
 import org.repl.poc.lmsdata.dto._
 import org.repl.poc.lmsdata.mongodb.model.{BookCopyMdl, BookMdl}
-import org.repl.poc.lmsdata.mongodb.repository.{BookCopyRepository, BookRepository, LibraryBranchRepository}
+import org.repl.poc.lmsdata.mongodb.repository.{BookCopyRepository, BookRepository, LibraryBranchRepository, UserBookRatingRepository}
 import org.springframework.beans.factory.annotation.Autowired
+import org.springframework.data.domain.PageRequest
 import org.springframework.data.mongodb.core.MongoTemplate
 import org.springframework.stereotype.Service
 import org.springframework.data.mongodb.core.aggregation.Aggregation._
@@ -20,7 +21,8 @@ import scala.collection.mutable
 class BookService @Autowired() (mongoTemplate: MongoTemplate,
                                 bookRepository: BookRepository,
                                 libraryBranchRepository: LibraryBranchRepository,
-                                bookCopyRepository: BookCopyRepository) {
+                                bookCopyRepository: BookCopyRepository,
+                                userBookRatingRepository: UserBookRatingRepository) {
 
   def getCollection(requestDto: ListViewRequestDto): ServiceResponse[PaginatedListDto[BookDto]] = {
     val response = new ServiceResponse[PaginatedListDto[BookDto]]()
@@ -144,6 +146,25 @@ class BookService @Autowired() (mongoTemplate: MongoTemplate,
         if (copies != null) {
           response.data = Some(copies.asScala.map( x => x.branch.createDto()).toList)
         }
+      }
+      case None => {
+        response.success = false
+        response.errors.+("No book found!")
+      }
+    }
+    response
+  }
+
+  def getRatings(id: String): ServiceResponse[UserBookRatingSummaryDto] = {
+    val response = new ServiceResponse[UserBookRatingSummaryDto]()
+    bookRepository.findById(id) match {
+      case Some(mdl) => {
+        val retValue = UserBookRatingSummaryDto(mdl.isbn)
+        val highRatings = userBookRatingRepository.getHighRatings(mdl.isbn, new PageRequest(0, 10))
+        retValue.highestRatings = highRatings.asScala.map( x => x.createDto()).toList
+
+        response.success = true
+        response.data = Some(retValue)
       }
       case None => {
         response.success = false

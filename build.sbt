@@ -33,6 +33,8 @@ lazy val root = (project in file(".")).
     libraryDependencies += "org.apache.commons" % "commons-lang3" % "3.3.2",
     libraryDependencies += "javax.xml.bind" % "jaxb-api" % "2.3.1",
     libraryDependencies += "org.glassfish.jaxb" % "jaxb-runtime" % "2.3.1",
+    libraryDependencies += "org.scala-lang.modules" % "scala-java8-compat_2.12"  % "0.9.0",
+    //libraryDependencies += "org.scala-lang.modules" % "scala-collection-compat_2.12"  % "2.1.2",
 
     libraryDependencies += "org.springframework.boot" % "spring-boot-starter-test" % springVersion
   )
